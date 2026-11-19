@@ -80,7 +80,6 @@ def main() -> None:
     assert np.all(cost >= 0.0)
 
     print("Current release validation passed.")
-    print("Note: full 986-date daily model series are not part of this initial migration.")
 
 
 if __name__ == "__main__":
