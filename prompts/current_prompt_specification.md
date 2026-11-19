@@ -1,24 +1,21 @@
-# Current prompt specification
-
-This file records the prompt information that is currently verified from the manuscript and the existing revision archive. It is not yet the verbatim prompt release.
+# Main-experiment prompt protocol summary
 
 ## Atomic decomposition
 
 - Input: one masked financial-news title.
-- Return the smallest independent risk-bearing propositions in source order.
-- Preserve negation, numerical qualifiers, and fixed company, ticker, and date placeholders.
-- Do not add facts.
-- Return the complete title when no independent split is warranted.
+- Extract the smallest independent risk-bearing propositions in source order.
+- Preserve negation, numerical qualifiers, and company, ticker, and date placeholders.
+- Use the complete title when a single proposition is present.
 
-## Semantic reading instructions
+## Semantic reading
 
-The three readings share the same event definitions and output slot. They vary instruction wording and category order.
+Three semantic readings use common event definitions and label completions, with varied instruction wording and category order. The instruction themes are:
 
-1. Classify the risk-relevant meaning of the following financial-news mention.
-2. Which defined financial event category best describes this masked mention?
-3. Select the closest risk-relevant event meaning for the statement below.
+1. Classify the risk-relevant meaning of a financial-news mention.
+2. Select the defined financial event category that best describes a masked mention.
+3. Select the closest risk-relevant event meaning for the input statement.
 
-## Fixed label completions
+## Event categories
 
 1. Earnings or guidance
 2. Analyst rating
@@ -30,7 +27,3 @@ The three readings share the same event definitions and output slot. They vary i
 8. Management change
 9. Positive corporate event
 10. Neutral or low-information news
-
-## Pending verbatim release
-
-The exact system messages, full category definitions, category order for each reading, input wrapper, fixed output schema, parser constraints, and fallback text must still be exported from the authoritative experiment workspace.
