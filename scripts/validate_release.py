@@ -6,6 +6,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from evaluation_helpers import (
+    breach_rate, pinball_loss, pooled_dq_hc1, tail_recall_at_5pct
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 RESULTS = ROOT / "results"
@@ -79,7 +83,22 @@ def main() -> None:
     assert np.allclose(np.diag(cost), 0.0)
     assert np.all(cost >= 0.0)
 
-    print("Current release validation passed.")
+    # Small deterministic checks of the metric implementations.
+    test_loss = np.arange(20, dtype=float) / 100.0
+    assert np.isclose(breach_rate(test_loss, np.full(20, 0.1)), 45.0)
+    assert np.isclose(
+        pinball_loss(np.array([0.0, 0.2]), np.array([0.1, 0.1]), 0.95),
+        5.0,
+    )
+    assert np.isclose(tail_recall_at_5pct(test_loss, test_loss), 100.0)
+    assert np.isclose(
+        tail_recall_at_5pct(test_loss, test_loss[::-1]), 0.0
+    )
+    rates = 5.0 + 2.0 * np.sin(np.arange(1000) * 0.13)
+    dq_stat, dq_p = pooled_dq_hc1(rates, alpha=0.95)
+    assert dq_stat >= 0.0 and 0.0 <= dq_p <= 1.0
+
+    print("Release data and metric checks passed.")
 
 
 if __name__ == "__main__":
