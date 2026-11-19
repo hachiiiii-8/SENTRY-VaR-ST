@@ -11,7 +11,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.stats import chi2
 
 from evaluation_helpers import dm_hac
 
@@ -147,34 +146,8 @@ def bootstrap_pooled_ci(
     return tuple(float(v) for v in np.quantile(samples, [0.025, 0.975]))
 
 
-def dq_test_nonoverlap(
-    daily_pct: np.ndarray, alpha: float, *, block: int = 20, lag: int = 2
-) -> tuple[float, float]:
-    """Optional two-lag HC1 Wald diagnostic on non-overlapping block means."""
-    blocks = np.asarray([
-        np.mean(daily_pct[i:i + block])
-        for i in range(0, len(daily_pct) - block + 1, block)
-    ])
-    hits = blocks - 100.0 * (1 - alpha)
-    if len(hits) <= lag + 4:
-        raise ValueError("Insufficient non-overlapping blocks for DQ regression")
-    y = hits[lag:]
-    X = np.column_stack(
-        [np.ones(len(y))] + [hits[lag-j:len(hits)-j] for j in range(1, lag+1)]
-    )
-    beta = np.linalg.lstsq(X, y, rcond=None)[0]
-    residual = y - X @ beta
-    n, k = X.shape
-    inv_xx = np.linalg.pinv(X.T @ X)
-    middle = X.T @ (X * (residual ** 2)[:, None])
-    cov_hc1 = n / (n - k) * (inv_xx @ middle @ inv_xx)
-    statistic = float(max(0.0, beta @ np.linalg.pinv(cov_hc1) @ beta))
-    return statistic, float(chi2.sf(statistic, df=k))
-
-
 def summarize_dependence(
-    frame: pd.DataFrame, *, seed: int, block: int, repetitions: int,
-    dq_lags: int, include_dq_preview: bool = False
+    frame: pd.DataFrame, *, seed: int, block: int, repetitions: int
 ) -> pd.DataFrame:
     rows = []
     for name, x in frame.groupby("Model", sort=False):
@@ -183,7 +156,6 @@ def summarize_dependence(
             level_frame = x[x["Level"] == level].sort_values("ForecastDate")
             n = level_frame["EligibleN"].to_numpy()
             k = level_frame["BreachCount"].to_numpy()
-            rates = 100 * k / n
             low, high = bootstrap_pooled_ci(
                 k, n, block_length=block, replications=repetitions, seed=seed
             )
@@ -191,12 +163,6 @@ def summarize_dependence(
                 f"BR{tag}": 100 * k.sum() / n.sum(),
                 f"CI{tag}_Lower": low, f"CI{tag}_Upper": high,
             })
-            if include_dq_preview:
-                dq_stat, dq_p = dq_test_nonoverlap(
-                    rates, level / 100, block=block, lag=dq_lags
-                )
-                result[f"DQPreviewStat{tag}"] = dq_stat
-                result[f"DQPreviewP{tag}"] = dq_p
         rows.append(result)
     return pd.DataFrame(rows)
 
@@ -304,11 +270,6 @@ def main() -> None:
                         help="Bootstrap resampling seed")
     parser.add_argument("--blocks", type=int, default=20)
     parser.add_argument("--repetitions", type=int, default=1000)
-    parser.add_argument("--dq-lags", type=int, default=2)
-    parser.add_argument(
-        "--dq-preview", action="store_true",
-        help="Compute a separate two-lag HC1 Wald diagnostic on block means.",
-    )
     parser.add_argument("--hac-lag", type=int, default=20)
     args = parser.parse_args()
 
@@ -320,8 +281,7 @@ def main() -> None:
     dm = summarize_dm(daily, args.hac_lag)
     dependence = summarize_dependence(
         daily, seed=args.seed, block=args.blocks,
-        repetitions=args.repetitions, dq_lags=args.dq_lags,
-        include_dq_preview=args.dq_preview,
+        repetitions=args.repetitions,
     )
     summary = summarize_daily(daily)
     covid = covid_comparison(daily)
