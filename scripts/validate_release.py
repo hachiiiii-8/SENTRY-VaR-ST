@@ -19,8 +19,8 @@ def require_columns(frame: pd.DataFrame, required: set[str], name: str) -> None:
 
 
 def main() -> None:
-    date_index = pd.read_csv(DATA / "test_date_index.csv")
-    require_columns(date_index, {"ForecastDate", "Year"}, "test_date_index.csv")
+    date_index = pd.read_csv(DATA / "test_date_index.csv.gz")
+    require_columns(date_index, {"ForecastDate", "Year"}, "test_date_index.csv.gz")
     assert len(date_index) == 986
     assert date_index["ForecastDate"].is_unique
     assert pd.to_datetime(date_index["ForecastDate"]).is_monotonic_increasing
