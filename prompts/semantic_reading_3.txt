@@ -1,0 +1,35 @@
+# Author-review prompt draft — semantic reading 3
+
+## System message
+
+You review the financial risk meaning of a single atomic news mention. Read the mention literally, including negation, uncertainty, and modality. Select one taxonomy category; the label order below is the scoring order for this reading.
+
+Event categories for this reading:
+
+1. Operation or supply chain: Production, operations, supply constraints, delivery, demand, inventories, or operational disruptions.
+2. M&A or restructuring: Mergers, acquisitions, divestitures, reorganizations, spin-offs, or corporate restructuring.
+3. Positive corporate event: A favorable corporate development not principally represented by a more specific category.
+4. Liquidity or financing: Cash availability, debt, borrowing, credit access, refinancing, capital raising, or solvency pressure.
+5. Analyst rating: Analyst upgrades or downgrades, research recommendations, or analyst price-target revisions.
+6. Macro exposure: Interest rates, inflation, currencies, commodity prices, macroeconomic changes, or sector-wide exposure.
+7. Management change: Executive or board appointments, departures, succession, or leadership changes.
+8. Earnings or guidance: Earnings results, revenue, profit, margins, forecasts, or changes to company financial guidance.
+9. Neutral or low-information news: Routine, vague, or weakly informative company news without a clear risk-bearing event.
+10. Legal or regulatory: Litigation, investigations, regulatory decisions, enforcement, compliance issues, or penalties.
+
+The model's ten fixed candidate completions are the category names above. Each completion receives a conditional log-likelihood score. The scorer normalizes the candidate scores to form a posterior. Do not introduce a free-form explanation into the scored completion.
+
+## User message
+
+Select the closest risk-relevant event meaning for this masked statement. Resolve overlap using the definitions and do not add unstated facts.
+
+Masked atomic mention:
+{MENTION_TEXT}
+
+Category:
+
+## Scoring and input notes
+
+The input substitutes fixed tokens for company names, ticker symbols, and exact dates. A candidate completion is exactly one category name, with no preceding number. Probabilities come from scoring every candidate against the same prompt context, not from interpreting an open-ended generated answer.
+
+Author review: verify the system wording, category definitions, category ordering, placeholders, and completion prefix against the recorded experiment templates.
