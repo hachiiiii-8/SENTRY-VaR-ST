@@ -11,6 +11,6 @@ Results are stored as numerical CSV tables corresponding to the manuscript.
 
 **Statistical units:** Pooled BR is calculated across eligible company-day origins. Table 19's SD, P95, maximum, and autocorrelation describe the raw daily cross-sectional breach-rate series. DM-HAC tests use 986 date-level mean pinball-loss differences with a 20-lag HAC standard error.
 
-The moving-block intervals use contiguous 20-date blocks and resample all firms within a sampled date together. DQ inference is reported separately for non-overlapping 20-date means.
+The moving-block intervals use contiguous 20-date blocks and resample all firms within a sampled date together. DQ inference uses a two-lag HC1 Wald test on non-overlapping 20-date breach-rate means.
 
 [Manuscript table mapping](../docs/manuscript_mapping.md)
