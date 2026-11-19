@@ -1,4 +1,4 @@
-# Author-review prompt draft — atomic title decomposition
+# Atomic title decomposition prompt
 
 ## System message
 
@@ -16,5 +16,3 @@ Return one JSON array of strings, in source order. Each element should retain en
 ## Processing convention
 
 Company names, ticker symbols, and exact dates are masked upstream. The downstream parser checks that the response is a JSON array of non-empty strings and removes duplicates. When parsing fails, the complete title is used as one mention.
-
-Author review: confirm the exact prompt text, placeholder convention, output grammar, and parser fallback against the experiment implementation.
