@@ -150,9 +150,10 @@ def bootstrap_pooled_ci(
 def dq_test_nonoverlap(
     daily_pct: np.ndarray, alpha: float, *, block: int = 20, lag: int = 2
 ) -> tuple[float, float]:
-    """Proposed two-lag pooled-DQ regression: HC1 Wald for intercept and lagged hits.
+    """Provisional HC1 Wald diagnostic on non-overlapping block-average deviations.
 
-    Verify the precise design matrix against the archived experiment script.
+    This is an exploratory two-lag formulation, not yet verified against
+    the experiment's exact pooled DQ design matrix.
     """
     blocks = np.asarray([
         np.mean(daily_pct[i:i + block])
@@ -176,7 +177,8 @@ def dq_test_nonoverlap(
 
 
 def summarize_dependence(
-    frame: pd.DataFrame, *, seed: int, block: int, repetitions: int, dq_lags: int
+    frame: pd.DataFrame, *, seed: int, block: int, repetitions: int,
+    dq_lags: int, include_dq_preview: bool = False
 ) -> pd.DataFrame:
     rows = []
     for name, x in frame.groupby("Model", sort=False):
@@ -189,14 +191,16 @@ def summarize_dependence(
             low, high = bootstrap_pooled_ci(
                 k, n, block_length=block, replications=repetitions, seed=seed
             )
-            dq_stat, dq_p = dq_test_nonoverlap(
-                rates, level / 100, block=block, lag=dq_lags
-            )
             result.update({
                 f"BR{tag}": 100 * k.sum() / n.sum(),
                 f"CI{tag}_Lower": low, f"CI{tag}_Upper": high,
-                f"DQstat{tag}": dq_stat, f"DQp{tag}": dq_p,
             })
+            if include_dq_preview:
+                dq_stat, dq_p = dq_test_nonoverlap(
+                    rates, level / 100, block=block, lag=dq_lags
+                )
+                result[f"DQPreviewStat{tag}"] = dq_stat
+                result[f"DQPreviewP{tag}"] = dq_p
         rows.append(result)
     return pd.DataFrame(rows)
 
@@ -305,6 +309,11 @@ def main() -> None:
     parser.add_argument("--blocks", type=int, default=20)
     parser.add_argument("--repetitions", type=int, default=1000)
     parser.add_argument("--dq-lags", type=int, default=2)
+    parser.add_argument(
+        "--dq-preview", action="store_true",
+        help="Generate an illustrative lagged-block HC1 Wald calculation; "
+             "the final DQ specification must match the original experiment.",
+    )
     parser.add_argument("--hac-lag", type=int, default=20)
     args = parser.parse_args()
 
@@ -316,7 +325,8 @@ def main() -> None:
     dm = summarize_dm(daily, args.hac_lag)
     dependence = summarize_dependence(
         daily, seed=args.seed, block=args.blocks,
-        repetitions=args.repetitions, dq_lags=args.dq_lags
+        repetitions=args.repetitions, dq_lags=args.dq_lags,
+        include_dq_preview=args.dq_preview,
     )
     summary = summarize_daily(daily)
     covid = covid_comparison(daily)
