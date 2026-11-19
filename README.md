@@ -81,9 +81,9 @@ The recomputation script accepts a date-level evaluation export, with one row pe
 python scripts/reproduce_statistics.py --daily data/daily_model_metrics_986.csv.gz
 ```
 
-The script generates pooled breach/pinball statistics, daily breach summaries, DM-HAC comparisons, moving-block intervals, and COVID-window cross-checks. Results and comparisons with the published tables are written to `outputs/`.
+The script generates pooled breach/pinball statistics, daily breach summaries, DM-HAC tests, moving-block confidence intervals, two-lag pooled DQ statistics, and COVID-window cross-checks. Results and comparisons with the published tables are written to `outputs/`.
 
-Bootstrap configuration can be set through command-line arguments. 
+Bootstrap, HAC, and DQ lag settings can be set through command-line arguments. The `tail_recall_at_5pct` evaluation helper accepts aligned per-origin realized losses and 99% VaR forecasts.
 
 ## Result-to-paper mapping
 
