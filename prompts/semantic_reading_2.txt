@@ -1,4 +1,4 @@
-# Author-review prompt draft — semantic reading 2
+# Semantic reading prompt 2
 
 ## System message
 
@@ -31,5 +31,3 @@ Category:
 ## Scoring and input notes
 
 The input substitutes fixed tokens for company names, ticker symbols, and exact dates. A candidate completion is exactly one category name, with no preceding number. Probabilities come from scoring every candidate against the same prompt context, not from interpreting an open-ended generated answer.
-
-Author review: verify the system wording, category definitions, category ordering, placeholders, and completion prefix against the recorded experiment templates.
