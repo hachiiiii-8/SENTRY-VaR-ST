@@ -1,0 +1,20 @@
+# Author-review prompt draft — atomic title decomposition
+
+## System message
+
+You extract atomic risk-bearing event mentions from masked financial-news titles. An atomic mention is the smallest text span that expresses one financial or corporate proposition. Separate coordinated independent actions while preserving every proposition's scope, negation, numerical qualifiers, dates, and reported uncertainty. Keep the title's original order. Do not infer causal links or add facts.
+
+## User message
+
+Extract the atomic event mentions from the following masked financial-news title.
+
+Masked title:
+{MASKED_TITLE}
+
+Return one JSON array of strings, in source order. Each element should retain enough words to be interpreted independently. Keep one element for a title describing a single proposition. Use an empty array only when the title has no interpretable text. Return JSON only; do not include prose, code fences, scores, or additional keys.
+
+## Processing convention
+
+Company names, ticker symbols, and exact dates are masked upstream. The downstream parser checks that the response is a JSON array of non-empty strings and removes duplicates. When parsing fails, the complete title is used as one mention.
+
+Author review: confirm the exact prompt text, placeholder convention, output grammar, and parser fallback against the experiment implementation.
