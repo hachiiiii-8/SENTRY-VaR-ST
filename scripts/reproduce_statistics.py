@@ -1,7 +1,7 @@
 """Recompute FNSPID headline evaluation statistics from genuine date-level exports.
 
 The daily metrics input has one row per date, model, and VaR confidence level.
-The DQ regression and bootstrap seed are configurable for author verification.
+The DQ regression and bootstrap seed are configurable.
 The script calculates statistics from source counts and daily loss means.
 """
 from __future__ import annotations
@@ -305,7 +305,7 @@ def main() -> None:
                         default=ROOT/"data"/"daily_model_metrics_986.csv.gz")
     parser.add_argument("--output", type=Path, default=ROOT/"outputs")
     parser.add_argument("--seed", type=int, default=2026,
-                        help="Candidate bootstrap seed; confirm against frozen run")
+                        help="Bootstrap resampling seed")
     parser.add_argument("--blocks", type=int, default=20)
     parser.add_argument("--repetitions", type=int, default=1000)
     parser.add_argument("--dq-lags", type=int, default=2)
