@@ -393,16 +393,24 @@ def main() -> None:
     dm_comparison.to_csv(args.output/"table2_comparison.csv", index=False)
 
     published_dep = pd.read_csv(ROOT/"results"/"table18_dependence_inference.csv")
-    dep_compare = compare_released(
-        dependence, published_dep, join_on=["Model"],
-        columns=[f"BR{tag}" for tag in ("95", "97_5", "99")],
-        label="Table 18 pooled BR", tolerance=0.0051,
-    )
-    dep_compare.to_csv(args.output/"table18_pooled_comparison.csv", index=False)
+    dep_compare = pd.concat([
+        compare_released(
+            dependence, published_dep, join_on=["Model"],
+            columns=[col], label="Table 18", tolerance=tol,
+        )
+        for col, tol in (
+            [(f"BR{level}", 0.0051) for level in ("95", "97_5", "99")]
+            + [(f"CI{level}_{bound}", 0.00051)
+               for level in ("95", "97_5", "99")
+               for bound in ("Lower", "Upper")]
+        )
+    ], ignore_index=True)
+    dep_compare.to_csv(args.output/"table18_comparison.csv", index=False)
 
     print(f"Computed main-experiment statistics in {args.output}")
     for label, item in (("Table 1", pd.DataFrame(core_comparisons)),
-                        ("Table 2", dm_comparison), ("Table 19", report)):
+                        ("Table 2", dm_comparison),
+                        ("Table 18", dep_compare), ("Table 19", report)):
         print(f"{label}: {int(item['WithinReportingTolerance'].sum())}/"
               f"{len(item)} point comparisons within display tolerance")
 
