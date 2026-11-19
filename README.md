@@ -1,56 +1,35 @@
-# SENTRY-VaR-ST reproducibility resources
+# SENTRY-VaR-ST
 
-This repository accompanies **SENTRY-VaR-ST: Mention-Level Semantic Transport for Robust VaR Forecasting from Multi-Event Financial News**.
+Reproducibility resources for **SENTRY-VaR-ST: Mention-Level Semantic Transport for Robust VaR Forecasting from Multi-Event Financial News**.
 
-## Scope
+## Main experiment
 
-The release is limited to the headline FNSPID main experiment and the temporal diagnostics requested during review. It does not include ablation studies, sensitivity analyses, semantic-backbone controls, the Astock external evaluation, or other secondary experiments.
+The materials describe the FNSPID 2020–2023 headline evaluation, covering twelve forecasting models and the 95%, 97.5%, and 99% VaR levels.
 
-The intended reproducibility scope covers:
+## Repository contents
 
-- the purged 2020--2023 FNSPID test protocol;
-- the twelve headline models at the 95%, 97.5%, and 99% VaR levels;
-- pooled breach rates and daily breach-rate series;
-- daily mean pinball-loss series and DM-HAC tests;
-- dependence-aware bootstrap and DQ diagnostics;
-- the COVID-19 crash-window diagnostic;
-- the exact prompts used by the main semantic pipeline;
-- the final semantic transport-cost matrix used by the main experiment.
+- `data/`: the 986-date eligible forecast-origin index, COVID-19 daily breach rates, and realized-loss summary.
+- `results/`: manuscript results for Table 1, DM-HAC tests in Table 2, dependence-aware inference in Table 18, and daily breach statistics in Table 19.
+- `scripts/`: evaluation functions, release validation, and date-index export.
+- `prompts/`: atomic-decomposition and semantic-reading protocol specification.
+- `cost_matrices/`: the numerical transport-cost matrix for the headline semantic model.
+- `docs/`: mapping between the repository files and manuscript tables.
 
-## Current release status
-
-The repository currently contains:
-
-- the 986 eligible forecast-date index;
-- the COVID-19 crash-window daily 95% breach-rate table;
-- the crash-window realized 20-day maximum-adverse-excursion summary;
-- manuscript-facing summaries for DM-HAC, dependence-aware inference, and daily breach clustering;
-- the final numerical semantic transport-cost matrix;
-- evaluation helpers, consistency checks, and GitHub Actions validation;
-- a verified summary of the prompt protocol.
-
-The complete 986-date per-model daily breach and daily pinball-loss series, the exact main-experiment prompts, and one end-to-end statistical reproduction script still need to be exported from the authoritative experiment workspace.
-
-## Repository layout
-
-```text
-data/             main-experiment derived data and the eligible date index
-results/          manuscript-facing main statistical summaries
-scripts/          evaluation helpers and release validation
-prompts/          main-experiment prompt materials
-cost_matrices/    final main-experiment semantic cost matrix
-docs/             file mapping and release status
-```
-
-## Validation
+## Validate the release
 
 ```bash
 python -m pip install -r requirements.txt
 python scripts/validate_release.py
 ```
 
-The validation checks date counts, table schemas, confidence-interval containment, COVID-window closure, cross-table maxima, and cost-matrix symmetry.
+To expand the forecast-date index into a CSV:
 
-## Data scope
+```bash
+python scripts/export_test_date_index.py
+```
 
-Copyrighted news text, original market records, identifiable company-day rows, per-origin thresholds, and annotation records are not redistributed. The repository contains only non-source-restricted materials needed for the main-experiment statistical release.
+The validation checks date ordering and counts, summary schemas, interval containment, COVID-window counts and maxima, and the numerical matrix structure.
+
+## Data provenance
+
+The released tables and date index are derived from the FNSPID evaluation protocol described in the manuscript. Source-data access follows the terms of the respective dataset providers.
