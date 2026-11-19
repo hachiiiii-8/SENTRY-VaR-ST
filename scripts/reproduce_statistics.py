@@ -2,7 +2,7 @@
 
 The daily metrics input has one row per date, model, and VaR confidence level.
 The DQ regression and bootstrap seed are configurable for author verification.
-This script never reconstructs unobserved model outputs from manuscript tables.
+The script calculates statistics from source counts and daily loss means.
 """
 from __future__ import annotations
 
