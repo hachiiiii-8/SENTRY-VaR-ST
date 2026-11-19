@@ -1,5 +1,7 @@
-# Main-experiment semantic transport cost
+# Semantic transport-cost matrix
 
-`final_semantic_transport_cost.csv` records the numerical 10 × 10 transport-cost matrix used for the FNSPID headline semantic model.
+[final_semantic_transport_cost.csv](final_semantic_transport_cost.csv) contains the 10 × 10 ground-cost matrix for the main FNSPID semantic transport model.
 
-Rows and columns follow the event-category ordering in the CSV. The matrix represents the financial-event transport geometry used in inference.
+The row and column order matches the financial-event categories used in the semantic readings. Each entry represents the cost of moving probability mass from one event interpretation to another. The diagonal is zero, the values are non-negative, and the matrix is symmetric.
+
+The financial-event geometry combines normalized event-ontology distances, event-description embedding distances, and symmetrized calibrated-confusion costs with equal weights. This final matrix is used to construct mention-level transport sets and reweight risk-channel probabilities during robust VaR inference.
