@@ -1,5 +1,7 @@
-# Cost matrices
+# Main-experiment cost matrix
 
-`final_semantic_transport_cost.csv` is the released final numerical matrix used for the manuscript-facing transport geometry.
+`final_semantic_transport_cost.csv` is the final numerical 10-by-10 transport-cost matrix used by the headline FNSPID experiment.
 
-The manuscript describes three normalized components with equal weights: ontology shortest-path distance, event-description embedding distance, and symmetrized calibrated-confusion cost. Those component matrices are not available in the current migration and must be exported before the repository is described as a complete cost-matrix release.
+The class order is stored in the CSV header and must remain unchanged. This release provides the exact matrix consumed by the main experiment, which is sufficient to reproduce its transport calculations.
+
+Intermediate ontology, embedding, and confusion matrices are not part of this focused release. Matrices used only by sensitivity analyses, random-cost controls, uniform-cost controls, alternative backbones, or external-market experiments are also excluded.
