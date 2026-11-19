@@ -83,7 +83,7 @@ python scripts/reproduce_statistics.py --daily data/daily_model_metrics_986.csv.
 
 The script generates pooled breach/pinball statistics, daily breach summaries, DM-HAC comparisons, moving-block intervals, and COVID-window cross-checks. Results and comparisons with the published tables are written to `outputs/`.
 
-Bootstrap configuration can be set through command-line arguments. The optional `--dq-preview` evaluates a separate two-lag HC1 block-mean diagnostic.
+Bootstrap configuration can be set through command-line arguments. 
 
 ## Result-to-paper mapping
 
