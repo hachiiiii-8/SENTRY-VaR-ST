@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from evaluation_helpers import dm_hac
+from evaluation_helpers import dm_hac, pooled_dq_hc1
 
 ROOT = Path(__file__).resolve().parents[1]
 LEVELS = (95.0, 97.5, 99.0)
@@ -147,7 +147,8 @@ def bootstrap_pooled_ci(
 
 
 def summarize_dependence(
-    frame: pd.DataFrame, *, seed: int, block: int, repetitions: int
+    frame: pd.DataFrame, *, seed: int, block: int, repetitions: int,
+    dq_lags: int
 ) -> pd.DataFrame:
     rows = []
     for name, x in frame.groupby("Model", sort=False):
@@ -159,9 +160,14 @@ def summarize_dependence(
             low, high = bootstrap_pooled_ci(
                 k, n, block_length=block, replications=repetitions, seed=seed
             )
+            dq_stat, dq_p = pooled_dq_hc1(
+                100.0 * k / n, level / 100.0,
+                block_length=block, lags=dq_lags,
+            )
             result.update({
                 f"BR{tag}": 100 * k.sum() / n.sum(),
                 f"CI{tag}_Lower": low, f"CI{tag}_Upper": high,
+                f"DQstat{tag}": dq_stat, f"DQp{tag}": dq_p,
             })
         rows.append(result)
     return pd.DataFrame(rows)
@@ -270,6 +276,7 @@ def main() -> None:
                         help="Bootstrap resampling seed")
     parser.add_argument("--blocks", type=int, default=20)
     parser.add_argument("--repetitions", type=int, default=1000)
+    parser.add_argument("--dq-lags", type=int, default=2)
     parser.add_argument("--hac-lag", type=int, default=20)
     args = parser.parse_args()
 
@@ -281,7 +288,7 @@ def main() -> None:
     dm = summarize_dm(daily, args.hac_lag)
     dependence = summarize_dependence(
         daily, seed=args.seed, block=args.blocks,
-        repetitions=args.repetitions,
+        repetitions=args.repetitions, dq_lags=args.dq_lags,
     )
     summary = summarize_daily(daily)
     covid = covid_comparison(daily)
@@ -362,10 +369,18 @@ def main() -> None:
     ], ignore_index=True)
     dep_compare.to_csv(args.output/"table18_comparison.csv", index=False)
 
+    dq_compare = compare_released(
+        dependence, published_dep, join_on=["Model"],
+        columns=["DQp95", "DQp97_5", "DQp99"],
+        label="Table 18 DQ", tolerance=0.0001,
+    )
+    dq_compare.to_csv(args.output/"table18_dq_comparison.csv", index=False)
+
     print(f"Computed main-experiment statistics in {args.output}")
     for label, item in (("Table 1", pd.DataFrame(core_comparisons)),
                         ("Table 2", dm_comparison),
-                        ("Table 18", dep_compare), ("Table 19", report)):
+                        ("Table 18", dep_compare),
+                        ("Table 18 DQ", dq_compare), ("Table 19", report)):
         print(f"{label}: {int(item['WithinReportingTolerance'].sum())}/"
               f"{len(item)} point comparisons within display tolerance")
 
