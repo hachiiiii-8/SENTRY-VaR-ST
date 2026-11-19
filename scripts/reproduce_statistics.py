@@ -233,21 +233,34 @@ def summarize_dm(frame: pd.DataFrame, hac_lag: int) -> pd.DataFrame:
 def compare_released(recomputed: pd.DataFrame, reference: pd.DataFrame,
                      *, join_on: list[str], columns: list[str], label: str,
                      tolerance: float = 0.00051) -> pd.DataFrame:
-    merged = recomputed.merge(reference, on=join_on, suffixes=("_calc", "_paper"),
-                              validate="one_to_one", how="inner")
+    for col in columns:
+        if col not in recomputed.columns or col not in reference.columns:
+            raise ValueError(f"{label}: required comparison column is missing: {col}")
+    merged = recomputed.merge(
+        reference, on=join_on, suffixes=("_calc", "_paper"),
+        validate="one_to_one", how="outer", indicator=True,
+    )
+    unmatched = merged[merged["_merge"] != "both"]
+    if not unmatched.empty:
+        raise ValueError(
+            f"{label}: {len(unmatched)} unmatched rows in reported comparison keys: "
+            + str(unmatched[join_on + ["_merge"]].head(5).to_dict("records"))
+        )
     output = []
     for _, row in merged.iterrows():
         item = {key: row[key] for key in join_on}
         for col in columns:
-            a, b = row.get(col + "_calc"), row.get(col + "_paper")
-            if pd.isna(a) or pd.isna(b):
-                continue
+            a, b = row[col + "_calc"], row[col + "_paper"]
+            if not np.isfinite(a) or not np.isfinite(b):
+                raise ValueError(f"{label}: non-finite or missing {col} for {item}")
             output.append({
                 "Source": label, **item, "Metric": col,
-                "Recomputed": a, "Published": b,
+                "Recomputed": float(a), "Published": float(b),
                 "Difference": float(a-b),
                 "WithinReportingTolerance": bool(abs(a-b) <= tolerance),
             })
+    if not output:
+        raise ValueError(f"{label}: comparison produced no rows")
     return pd.DataFrame(output)
 
 
@@ -261,6 +274,12 @@ def covid_comparison(frame: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("COVID-19 eligible counts differ from the manuscript")
     rec = observed.pivot(index="ForecastDate", columns="Model", values="BreachRatePct")
     ref = covid.set_index(pd.to_datetime(covid["Date"]))
+    if not rec.index.equals(ref.index):
+        raise ValueError("COVID-19 forecast dates do not match the released table")
+    counts = (observed[observed["Model"] == PROPOSED]
+              .set_index("ForecastDate")["EligibleN"].sort_index())
+    if not np.array_equal(counts.to_numpy(), ref["Eligible_N"].to_numpy()):
+        raise ValueError("COVID-19 date-level eligible counts do not match")
     out = []
     for model in rec.columns:
         if model not in ref.columns:
@@ -313,11 +332,21 @@ def main() -> None:
     # Preserve published results as immutable reference values.
     reference = pd.read_csv(ROOT/"results"/"table19_daily_summary.csv")
     summary["Level"] = summary["Level"].map(lambda n: f"{n:g}%")
-    report = compare_released(
-        summary, reference, join_on=["Model", "Level"],
-        columns=["PooledBR", "SD", "P95", "Maximum", "RawDailyRho1"],
-        label="Table 19",
-    )
+    # Each column is checked at its own display precision: rates/SD/P95
+    # have two decimals, while maxima and rho are printed to three decimals.
+    report = pd.concat([
+        compare_released(
+            summary, reference, join_on=["Model", "Level"],
+            columns=[metric], label="Table 19", tolerance=tol,
+        )
+        for metric, tol in (
+            ("PooledBR", 0.0051),
+            ("SD", 0.0051),
+            ("P95", 0.0051),
+            ("Maximum", 0.00051),
+            ("RawDailyRho1", 0.00051),
+        )
+    ], ignore_index=True)
     report.to_csv(args.output/"table19_comparison.csv", index=False)
 
     # Also compare headline BR/pinball and the published HAC and inference statistics.
@@ -356,8 +385,7 @@ def main() -> None:
     published_dep = pd.read_csv(ROOT/"results"/"table18_dependence_inference.csv")
     dep_compare = compare_released(
         dependence, published_dep, join_on=["Model"],
-        columns=[f"{prefix}{tag}" for tag in ("95", "97_5", "99")
-                 for prefix in ("BR", "CI") if prefix == "BR"],
+        columns=[f"BR{tag}" for tag in ("95", "97_5", "99")],
         label="Table 18 pooled BR", tolerance=0.0051,
     )
     dep_compare.to_csv(args.output/"table18_pooled_comparison.csv", index=False)
