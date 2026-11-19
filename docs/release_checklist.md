@@ -1,12 +1,35 @@
-# Remaining reproducibility items
+# Remaining main-experiment reproducibility items
 
-The following items must be added before the repository is described as the complete public reproducibility release:
+Only materials required to reproduce the headline FNSPID experiment and its temporal diagnostics are in scope.
 
-- [ ] complete 986-date daily breach series for every model and confidence level;
-- [ ] complete 986-date daily pinball-loss series for every model and confidence level;
-- [ ] scripts that regenerate Tables 2, 18, and 19 from those daily series;
-- [ ] exact verbatim atomic-decomposition and semantic-reading prompts;
-- [ ] full taxonomy definitions, category orders, and output schema;
-- [ ] ontology, embedding, and confusion component cost matrices;
-- [ ] a clean-environment run confirming all released outputs;
-- [ ] final license and citation metadata selected by the authors.
+## Required before public release
+
+- [ ] complete 986-date daily breach series for all twelve headline models and three confidence levels;
+- [ ] complete 986-date daily mean pinball-loss series for the same model-level combinations;
+- [ ] one script that regenerates the headline pooled rates, DM-HAC results, Table 18, Table 19, and the COVID-window extraction;
+- [ ] exact verbatim atomic-decomposition prompt used by the main experiment;
+- [ ] exact verbatim three semantic-reading prompts used by the main experiment, including taxonomy definitions, category orders, and output format;
+- [ ] confirmation of the bootstrap seed and exact DQ regression specification;
+- [ ] a clean-environment validation run;
+- [ ] repository access changed to public after the release files are checked for restricted or identifying content.
+
+## Already available
+
+- [x] 986-date eligible forecast-origin index;
+- [x] COVID-window daily 95% breach table;
+- [x] COVID-window realized-loss summary;
+- [x] manuscript-facing DM-HAC, Table 18, and Table 19 summaries;
+- [x] final main-experiment semantic transport-cost matrix;
+- [x] evaluation helpers and automated consistency checks.
+
+## Explicitly out of scope
+
+- ablation experiments;
+- sensitivity analyses over horizons, windows, or targets;
+- semantic-backbone controls;
+- Astock external-market results;
+- mechanism-only tables and case studies;
+- model checkpoints, training logs, and complete training code;
+- copyrighted news text, original market data, or identifiable company-day records;
+- per-origin predictions and thresholds;
+- intermediate ontology, embedding, and confusion matrices when the final matrix used by the main experiment is already released.
