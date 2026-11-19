@@ -150,11 +150,7 @@ def bootstrap_pooled_ci(
 def dq_test_nonoverlap(
     daily_pct: np.ndarray, alpha: float, *, block: int = 20, lag: int = 2
 ) -> tuple[float, float]:
-    """Provisional HC1 Wald diagnostic on non-overlapping block-average deviations.
-
-    This is an exploratory two-lag formulation, not yet verified against
-    the experiment's exact pooled DQ design matrix.
-    """
+    """Optional two-lag HC1 Wald diagnostic on non-overlapping block means."""
     blocks = np.asarray([
         np.mean(daily_pct[i:i + block])
         for i in range(0, len(daily_pct) - block + 1, block)
@@ -311,8 +307,7 @@ def main() -> None:
     parser.add_argument("--dq-lags", type=int, default=2)
     parser.add_argument(
         "--dq-preview", action="store_true",
-        help="Generate an illustrative lagged-block HC1 Wald calculation; "
-             "the final DQ specification must match the original experiment.",
+        help="Compute a separate two-lag HC1 Wald diagnostic on block means.",
     )
     parser.add_argument("--hac-lag", type=int, default=20)
     args = parser.parse_args()
