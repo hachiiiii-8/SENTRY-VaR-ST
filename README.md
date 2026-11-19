@@ -10,10 +10,10 @@ The materials describe the FNSPID 2020–2023 headline evaluation, covering twel
 
 - `data/`: the 986-date eligible forecast-origin index, COVID-19 daily breach rates, and realized-loss summary.
 - `results/`: manuscript results for Table 1, DM-HAC tests in Table 2, dependence-aware inference in Table 18, and daily breach statistics in Table 19.
-- `scripts/`: evaluation functions, release validation, and date-index export.
-- `prompts/`: atomic-decomposition and semantic-reading protocol specification.
+- `scripts/`: evaluation functions, statistical recomputation, release validation, and date-index export.
+- `prompts/`: complete atomic-decomposition and three semantic-reading drafts for author review.
 - `cost_matrices/`: the numerical transport-cost matrix for the headline semantic model.
-- `docs/`: mapping between the repository files and manuscript tables.
+- `docs/`: mapping between the repository files and manuscript tables, plus daily-export field definitions.
 
 ## Validate the release
 
