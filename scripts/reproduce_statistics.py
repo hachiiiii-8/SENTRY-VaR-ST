@@ -319,10 +319,54 @@ def main() -> None:
         label="Table 19",
     )
     report.to_csv(args.output/"table19_comparison.csv", index=False)
+
+    # Also compare headline BR/pinball and the published HAC and inference statistics.
+    table1 = pd.read_csv(ROOT/"results"/"table1_headline_results.csv")
+    core_comparisons = []
+    for _, r in headline.iterrows():
+        pub = table1[table1["Model"] == r["Model"]]
+        if len(pub) != 1:
+            continue
+        level_tag = {95.0: "95", 97.5: "97_5", 99.0: "99"}[r["Level"]]
+        for field, expected_col in (
+            ("PooledBRPct", f"BR{level_tag}Pct"),
+            ("PooledMeanPinball", f"Pinball{level_tag}")
+        ):
+            expected = float(pub.iloc[0][expected_col])
+            calc = float(r[field])
+            core_comparisons.append({
+                "Model": r["Model"], "Level": r["Level"], "Metric": field,
+                "Recomputed": calc, "Published": expected, "Difference": calc-expected,
+                "WithinReportingTolerance": abs(calc-expected) <= 0.0051,
+            })
+    pd.DataFrame(core_comparisons).to_csv(
+        args.output/"table1_core_comparison.csv", index=False
+    )
+
+    published_dm = pd.read_csv(ROOT/"results"/"table2_dm_hac.csv")
+    dm_copy = dm.copy()
+    dm_copy["Level"] = dm_copy["Level"].astype(str).str.replace(".0", "", regex=False)
+    dm_comparison = compare_released(
+        dm_copy, published_dm, join_on=["Comparator", "Level"],
+        columns=["MeanDifference", "DMStatistic", "PValueTwoSided"],
+        label="Table 2", tolerance=0.00051
+    )
+    dm_comparison.to_csv(args.output/"table2_comparison.csv", index=False)
+
+    published_dep = pd.read_csv(ROOT/"results"/"table18_dependence_inference.csv")
+    dep_compare = compare_released(
+        dependence, published_dep, join_on=["Model"],
+        columns=[f"{prefix}{tag}" for tag in ("95", "97_5", "99")
+                 for prefix in ("BR", "CI") if prefix == "BR"],
+        label="Table 18 pooled BR", tolerance=0.0051,
+    )
+    dep_compare.to_csv(args.output/"table18_pooled_comparison.csv", index=False)
+
     print(f"Computed main-experiment statistics in {args.output}")
-    print(f"Table 19 comparisons within 0.00051: "
-          f"{int(report['WithinReportingTolerance'].sum())}/{len(report)}")
-    print("Confirm the bootstrap seed and pooled DQ design with the original statistics configuration.")
+    for label, item in (("Table 1", pd.DataFrame(core_comparisons)),
+                        ("Table 2", dm_comparison), ("Table 19", report)):
+        print(f"{label}: {int(item['WithinReportingTolerance'].sum())}/"
+              f"{len(item)} point comparisons within display tolerance")
 
 
 if __name__ == "__main__":
