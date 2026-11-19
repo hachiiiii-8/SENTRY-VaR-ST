@@ -1,7 +1,5 @@
-# Main-experiment cost matrix
+# Main-experiment semantic transport cost
 
-`final_semantic_transport_cost.csv` is the final numerical 10-by-10 transport-cost matrix used by the headline FNSPID experiment.
+`final_semantic_transport_cost.csv` records the numerical 10 × 10 transport-cost matrix used for the FNSPID headline semantic model.
 
-The class order is stored in the CSV header and must remain unchanged. This release provides the exact matrix consumed by the main experiment, which is sufficient to reproduce its transport calculations.
-
-Intermediate ontology, embedding, and confusion matrices are not part of this focused release. Matrices used only by sensitivity analyses, random-cost controls, uniform-cost controls, alternative backbones, or external-market experiments are also excluded.
+Rows and columns follow the event-category ordering in the CSV. The matrix represents the financial-event transport geometry used in inference.
