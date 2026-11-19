@@ -30,9 +30,9 @@ python scripts/export_test_date_index.py
 
 The validation checks date ordering and counts, summary schemas, interval containment, COVID-window counts and maxima, and the numerical matrix structure.
 
-## Recompute from the daily evaluation export
+## Recompute headline evaluation diagnostics
 
-The full main-experiment statistics can be recomputed from a date-level file following `docs/daily_metrics_format.md`:
+Pooled breach and pinball statistics, daily summaries, DM-HAC tests, and block-bootstrap intervals can be recomputed from the date-level input specified in `docs/daily_metrics_format.md`:
 
 ```bash
 python scripts/reproduce_statistics.py --daily data/daily_model_metrics_986.csv.gz
